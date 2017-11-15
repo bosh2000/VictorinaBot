@@ -1,5 +1,8 @@
 package glupak.m;
 
+import glupak.m.MySqlCore.MySqlConnect;
+import glupak.m.VictorinaCore.Question;
+import glupak.m.VictorinaCore.Victorina;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 import org.telegram.telegrambots.ApiContextInitializer;
 import org.telegram.telegrambots.TelegramBotsApi;
@@ -10,7 +13,18 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 
 public class Main extends TelegramLongPollingBot {
 
+
+    private static Victorina victorina;
+    private Question question;
+    private static boolean isQuestion;
+    private static boolean isAnswer;
+
     public static void main(String[] args) {
+
+        victorina = new Victorina();
+        victorina.init();
+        isQuestion = true;
+        isAnswer = false;
         ApiContextInitializer.init();
         TelegramBotsApi telegramBotsApi = new TelegramBotsApi();
         try {
@@ -32,12 +46,26 @@ public class Main extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
+        if (isAnswer) {
+            question = victorina.getQuestion();
+            isAnswer = false;
+        }
         Message message = update.getMessage();
         if (message != null && message.hasText()) {
             if (message.getText().equals("/help"))
                 sendMsg(message, "Привет, я робот");
-            else
-                sendMsg(message, "Я не знаю что ответить на это");
+            else {
+                if (isQuestion) {
+                    sendMsg(message, question.question);
+                    isQuestion = false;
+                }
+                if (message.getText().equalsIgnoreCase(question.answer)){
+                    sendMsg(message,"Правильный ответ!");
+                    sendMsg(message,victorina.getQuestion().question);
+                    isAnswer = true;
+                }
+
+            }
         }
     }
 
