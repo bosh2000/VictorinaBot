@@ -22,15 +22,14 @@ public class MySqlExecute {
     public Question getQuestion(){
         int countQuestion=getCountQuestion();
         Random random=new Random();
-        Question question=new Question();
+        Question question=null;//=new Question();
         int indexQuestion=random.nextInt(countQuestion);
         try{
             PreparedStatement preparedStatement=connection.prepareStatement(SQL);
             preparedStatement.setInt(1,indexQuestion);
             ResultSet resultSet=preparedStatement.executeQuery();
             resultSet.next();
-            question.question=resultSet.getString("question");
-            question.answer=resultSet.getString("answer");
+            question=new Question(resultSet.getString("question"),resultSet.getString("answer"));
         }catch (SQLException e){
             e.printStackTrace();
         }

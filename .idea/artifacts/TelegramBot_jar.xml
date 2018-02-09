@@ -3,7 +3,6 @@
     <output-path>$PROJECT_DIR$/out/artifacts/TelegramBot_jar</output-path>
     <root id="archive" name="TelegramBot.jar">
       <element id="module-output" name="TelegramBot" />
-      <element id="extracted-dir" path="$USER_HOME$/Downloads/telegrambots-3.3-jar-with-dependencies.jar" path-in-jar="/" />
     </root>
   </artifact>
 </component>

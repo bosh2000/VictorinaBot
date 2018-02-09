@@ -15,7 +15,7 @@ public class Main extends TelegramLongPollingBot {
 
 
     private static Victorina victorina;
-    private Question question;
+    private static Question question;
     private static boolean isQuestion;
     private static boolean isAnswer;
 
@@ -23,8 +23,8 @@ public class Main extends TelegramLongPollingBot {
 
         victorina = new Victorina();
         victorina.init();
+        question = victorina.getQuestion();
         isQuestion = true;
-        isAnswer = false;
         ApiContextInitializer.init();
         TelegramBotsApi telegramBotsApi = new TelegramBotsApi();
         try {
@@ -46,26 +46,31 @@ public class Main extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
-        if (isAnswer) {
-            question = victorina.getQuestion();
-            isAnswer = false;
-        }
+
         Message message = update.getMessage();
         if (message != null && message.hasText()) {
-            if (message.getText().equals("/help"))
-                sendMsg(message, "Привет, я робот");
-            else {
+            if (message.getText().equals("/start")) {
+                sendMsg(message,"Викторина! команда /next следующий вопрос");
                 if (isQuestion) {
                     sendMsg(message, question.question);
                     isQuestion = false;
+                    return;
                 }
-                if (message.getText().equalsIgnoreCase(question.answer)){
-                    sendMsg(message,"Правильный ответ!");
-                    sendMsg(message,victorina.getQuestion().question);
-                    isAnswer = true;
-                }
-
             }
+            if (message.getText().equals("/next")) {
+                    question=victorina.getQuestion();
+                    sendMsg(message, question.question);
+                    return;
+                }
+            }
+
+
+        String answer = message.getText();
+        if (!question.answer.equalsIgnoreCase(answer) && question.hint.contains("-")) {
+            sendMsg(message, question.GenerateHint());
+        } else {
+            question = victorina.getQuestion();
+            sendMsg(message, question.question);
         }
     }
 
